@@ -7,11 +7,14 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface PatientRepository extends JpaRepository<Patient, Integer> {
+public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     Optional<Patient> findByUsername(String username);
 
     Optional<Patient> findByEmail(String email);
+
+    /** Retrieve a patient by either their email address or phone number */
+    Optional<Patient> findByEmailOrPhoneNumber(String email, String phoneNumber);
 
     boolean existsByUsername(String username);
 
