@@ -1,9 +1,9 @@
 package com.project.back_end.models;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Entity
 @Table(name = "appointment")
@@ -11,21 +11,23 @@ public class Appointment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int appointmentId;
+    private Long appointmentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
+    @NotNull
     private Patient patient;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id", nullable = false)
+    @NotNull
     private Doctor doctor;
 
+    // Uses LocalDateTime to combine date and time; @Future ensures the appointment is upcoming
     @Column(nullable = false)
-    private LocalDate appointmentDate;
-
-    @Column(nullable = false)
-    private LocalTime appointmentTime;
+    @NotNull
+    @Future
+    private LocalDateTime appointmentTime;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -40,51 +42,31 @@ public class Appointment {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    public enum AppointmentStatus {
-        Scheduled, Completed, Cancelled, NoShow
-    }
+    public enum AppointmentStatus { Scheduled, Completed, Cancelled, NoShow }
 
     @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
+    protected void onCreate() { this.createdAt = LocalDateTime.now(); }
 
-    // Constructors
     public Appointment() {}
 
-    public Appointment(Patient patient, Doctor doctor, LocalDate appointmentDate,
-                       LocalTime appointmentTime, String reasonForVisit) {
-        this.patient = patient;
-        this.doctor = doctor;
-        this.appointmentDate = appointmentDate;
-        this.appointmentTime = appointmentTime;
-        this.reasonForVisit = reasonForVisit;
+    public Appointment(Patient patient, Doctor doctor, LocalDateTime appointmentTime, String reasonForVisit) {
+        this.patient = patient; this.doctor = doctor;
+        this.appointmentTime = appointmentTime; this.reasonForVisit = reasonForVisit;
     }
 
-    // Getters and Setters
-    public int getAppointmentId() { return appointmentId; }
-    public void setAppointmentId(int appointmentId) { this.appointmentId = appointmentId; }
-
+    public Long getAppointmentId() { return appointmentId; }
+    public void setAppointmentId(Long appointmentId) { this.appointmentId = appointmentId; }
     public Patient getPatient() { return patient; }
     public void setPatient(Patient patient) { this.patient = patient; }
-
     public Doctor getDoctor() { return doctor; }
     public void setDoctor(Doctor doctor) { this.doctor = doctor; }
-
-    public LocalDate getAppointmentDate() { return appointmentDate; }
-    public void setAppointmentDate(LocalDate appointmentDate) { this.appointmentDate = appointmentDate; }
-
-    public LocalTime getAppointmentTime() { return appointmentTime; }
-    public void setAppointmentTime(LocalTime appointmentTime) { this.appointmentTime = appointmentTime; }
-
+    public LocalDateTime getAppointmentTime() { return appointmentTime; }
+    public void setAppointmentTime(LocalDateTime appointmentTime) { this.appointmentTime = appointmentTime; }
     public AppointmentStatus getStatus() { return status; }
     public void setStatus(AppointmentStatus status) { this.status = status; }
-
     public String getReasonForVisit() { return reasonForVisit; }
     public void setReasonForVisit(String reasonForVisit) { this.reasonForVisit = reasonForVisit; }
-
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
-
     public LocalDateTime getCreatedAt() { return createdAt; }
 }
