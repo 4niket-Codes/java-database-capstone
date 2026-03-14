@@ -11,39 +11,42 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class AppointmentService {
 
-    @Autowired
-    private AppointmentRepository appointmentRepository;
-
-    @Autowired
-    private DoctorRepository doctorRepository;
-
-    @Autowired
-    private PatientRepository patientRepository;
+    @Autowired private AppointmentRepository appointmentRepository;
+    @Autowired private DoctorRepository doctorRepository;
+    @Autowired private PatientRepository patientRepository;
 
     public List<Appointment> getAllAppointments() {
         return appointmentRepository.findAll();
     }
 
-    public Optional<Appointment> getAppointmentById(int id) {
+    public Optional<Appointment> getAppointmentById(Long id) {
         return appointmentRepository.findById(id);
     }
 
-    public List<Appointment> getAppointmentsByDoctor(int doctorId) {
+    public List<Appointment> getAppointmentsByDoctor(Long doctorId) {
         return appointmentRepository.findByDoctor_DoctorId(doctorId);
     }
 
-    public List<Appointment> getAppointmentsByPatient(int patientId) {
+    public List<Appointment> getAppointmentsByPatient(Long patientId) {
         return appointmentRepository.findByPatient_PatientId(patientId);
     }
 
-    public List<Appointment> getDailyAppointmentsByDoctor(int doctorId, LocalDate date) {
-        return appointmentRepository.findDailyAppointmentsByDoctor(doctorId, date);
+    /** Retrieves all appointments for a specific doctor filtered by a given date */
+    public List<Appointment> getAppointmentsByDoctorAndDate(Long doctorId, LocalDate date) {
+        LocalDateTime start = date.atStartOfDay();
+        LocalDateTime end   = date.atTime(23, 59, 59);
+        return appointmentRepository.findByDoctor_DoctorIdAndAppointmentTimeBetween(doctorId, start, end);
+    }
+
+    public List<Appointment> getDailyAppointmentsByDoctor(Long doctorId, LocalDate date) {
+        return getAppointmentsByDoctorAndDate(doctorId, date);
     }
 
     public Appointment createAppointment(AppointmentDTO dto) {
@@ -51,24 +54,18 @@ public class AppointmentService {
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
         Doctor doctor = doctorRepository.findById(dto.getDoctorId())
                 .orElseThrow(() -> new RuntimeException("Doctor not found"));
-
-        Appointment appointment = new Appointment(
-                patient, doctor,
-                dto.getAppointmentDate(),
-                dto.getAppointmentTime(),
-                dto.getReasonForVisit()
-        );
-        return appointmentRepository.save(appointment);
+        Appointment appt = new Appointment(patient, doctor, dto.getAppointmentTime(), dto.getReasonForVisit());
+        return appointmentRepository.save(appt);
     }
 
-    public Appointment updateAppointmentStatus(int id, Appointment.AppointmentStatus status) {
-        Appointment appointment = appointmentRepository.findById(id)
+    public Appointment updateAppointmentStatus(Long id, Appointment.AppointmentStatus status) {
+        Appointment appt = appointmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
-        appointment.setStatus(status);
-        return appointmentRepository.save(appointment);
+        appt.setStatus(status);
+        return appointmentRepository.save(appt);
     }
 
-    public void deleteAppointment(int id) {
+    public void deleteAppointment(Long id) {
         appointmentRepository.deleteById(id);
     }
 
