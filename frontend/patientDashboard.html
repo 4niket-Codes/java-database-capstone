@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patient Portal – Smart Clinic</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --violet: #7c3aed;
+    --violet-dark: #6d28d9;
+    --slate: #0f172a;
+    --mid: #1e293b;
+    --border: #1e293b;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --success: #22c55e;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Outfit',sans-serif; background:var(--slate); color:var(--text); min-height:100vh; }
+
+  /* LOGIN */
+  #login-page {
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(ellipse at 30% 60%, #3b0764 0%, #0f172a 65%);
+  }
+
+  .card {
+    background:rgba(30,41,59,0.96); border:1px solid rgba(124,58,237,0.25);
+    border-radius:20px; padding:48px 44px; width:420px;
+    backdrop-filter:blur(20px); box-shadow:0 40px 80px rgba(0,0,0,0.5);
+    animation:up 0.5s ease both;
+  }
+  @keyframes up { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+
+  .role-badge {
+    display:inline-flex; align-items:center; gap:6px;
+    background:rgba(124,58,237,0.12); border:1px solid rgba(124,58,237,0.3);
+    border-radius:100px; padding:4px 12px 4px 8px; font-size:11px;
+    font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
+    color:#c4b5fd; margin-bottom:24px;
+  }
+
+  .login-title { font-size:28px; font-weight:700; margin-bottom:6px; color:#fff; }
+  .login-sub   { font-size:14px; color:var(--muted); margin-bottom:36px; }
+
+  label { display:block; font-size:11px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color:var(--muted); margin-bottom:7px; }
+  input[type="text"],input[type="password"],input[type="search"] {
+    width:100%; background:rgba(15,23,42,0.8); border:1px solid #334155;
+    border-radius:10px; padding:12px 16px; font-size:15px;
+    font-family:'Outfit',sans-serif; color:var(--text);
+    outline:none; transition:border-color 0.2s; margin-bottom:18px;
+  }
+  input:focus { border-color:var(--violet); box-shadow:0 0 0 3px rgba(124,58,237,0.2); }
+
+  .btn-main {
+    width:100%; background:var(--violet); color:#fff; border:none;
+    border-radius:10px; padding:14px; font-size:15px; font-weight:600;
+    font-family:'Outfit',sans-serif; cursor:pointer; transition:background 0.2s;
+  }
+  .btn-main:hover { background:var(--violet-dark); }
+  .login-foot { text-align:center; margin-top:18px; font-size:12px; color:var(--muted); }
+
+  /* DASHBOARD */
+  #dash-page { display:none; }
+
+  .topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 28px; background:var(--mid); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:50; }
+  .brand { display:flex; align-items:center; gap:10px; font-size:17px; font-weight:700; }
+  .brand-icon { width:34px; height:34px; background:var(--violet); border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .role-chip { background:rgba(124,58,237,0.12); border:1px solid rgba(124,58,237,0.3); border-radius:100px; padding:4px 12px; font-size:12px; color:#c4b5fd; font-weight:600; }
+  .btn-out { background:transparent; border:1px solid #334155; border-radius:8px; padding:5px 13px; font-size:13px; color:var(--muted); cursor:pointer; font-family:inherit; }
+  .btn-out:hover { border-color:var(--danger); color:var(--danger); }
+
+  .layout { display:flex; min-height:calc(100vh - 62px); }
+  .sidebar { width:210px; background:var(--mid); border-right:1px solid var(--border); padding:20px 0; flex-shrink:0; }
+  .sb-sec  { font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); padding:0 18px; margin:14px 0 6px; }
+  .sb-item { display:flex; align-items:center; gap:9px; padding:9px 18px; font-size:13px; color:var(--muted); cursor:pointer; border-left:3px solid transparent; transition:all 0.15s; }
+  .sb-item:hover,.sb-item.active { color:var(--text); background:rgba(124,58,237,0.08); border-left-color:var(--violet); }
+
+  .content { flex:1; padding:28px; }
+  .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
+  .page-title { font-size:20px; font-weight:700; }
+  .page-sub   { font-size:13px; color:var(--muted); margin-top:2px; }
+
+  /* Search section */
+  .search-section { background:var(--mid); border:1px solid var(--border); border-radius:14px; padding:22px; margin-bottom:24px; }
+  .search-title { font-size:14px; font-weight:600; margin-bottom:14px; }
+  .search-row { display:flex; gap:10px; }
+  .search-input {
+    flex:1; background:rgba(15,23,42,0.8); border:1px solid #334155;
+    border-radius:10px; padding:11px 16px; font-size:14px;
+    font-family:'Outfit',sans-serif; color:var(--text);
+    outline:none; transition:border-color 0.2s; margin-bottom:0;
+  }
+  .search-input:focus { border-color:var(--violet); }
+  .search-input::placeholder { color:var(--muted); }
+
+  .spec-select {
+    background:rgba(15,23,42,0.8); border:1px solid #334155;
+    border-radius:10px; padding:11px 14px; font-size:14px;
+    font-family:'Outfit',sans-serif; color:var(--text); outline:none;
+    cursor:pointer; transition:border-color 0.2s;
+  }
+  .spec-select:focus { border-color:var(--violet); }
+  .spec-select option { background:var(--mid); }
+
+  .btn-search {
+    background:var(--violet); color:#fff; border:none; border-radius:10px;
+    padding:11px 20px; font-size:14px; font-weight:600;
+    font-family:'Outfit',sans-serif; cursor:pointer; transition:background 0.2s;
+  }
+  .btn-search:hover { background:var(--violet-dark); }
+
+  .doc-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; margin-top:16px; }
+  .doc-card {
+    background:rgba(15,23,42,0.6); border:1px solid var(--border); border-radius:12px; padding:18px;
+    transition:border-color 0.2s, transform 0.2s; cursor:pointer;
+  }
+  .doc-card:hover { border-color:rgba(124,58,237,0.4); transform:translateY(-2px); }
+  .doc-avatar { width:44px; height:44px; background:rgba(124,58,237,0.2); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:10px; }
+  .doc-name   { font-size:14px; font-weight:600; margin-bottom:3px; }
+  .doc-spec   { font-size:12px; color:var(--muted); margin-bottom:8px; }
+  .doc-exp    { font-size:11px; color:#c4b5fd; }
+  .btn-book   { width:100%; margin-top:12px; background:rgba(124,58,237,0.15); border:1px solid rgba(124,58,237,0.3); border-radius:8px; padding:7px; font-size:13px; font-weight:600; color:#c4b5fd; cursor:pointer; font-family:inherit; transition:all 0.2s; }
+  .btn-book:hover { background:var(--violet); color:#fff; }
+
+  .tcard { background:var(--mid); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .tbar  { display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-bottom:1px solid var(--border); }
+  .ttitle { font-size:14px; font-weight:600; }
+  table  { width:100%; border-collapse:collapse; }
+  th     { padding:11px 18px; text-align:left; font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); background:rgba(15,23,42,0.4); border-bottom:1px solid var(--border); }
+  td     { padding:13px 18px; font-size:13px; border-bottom:1px solid rgba(30,41,59,0.8); }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:rgba(124,58,237,0.04); }
+
+  .badge { display:inline-block; padding:3px 9px; border-radius:100px; font-size:11px; font-weight:600; }
+  .badge-green  { background:rgba(34,197,94,0.12); color:#4ade80; }
+  .badge-violet { background:rgba(124,58,237,0.12); color:#c4b5fd; }
+  .badge-amber  { background:rgba(245,158,11,0.12); color:#fcd34d; }
+  .badge-red    { background:rgba(239,68,68,0.12); color:#fca5a5; }
+
+  .btn-sm { background:transparent; border:1px solid #334155; border-radius:7px; padding:4px 11px; font-size:12px; cursor:pointer; font-family:inherit; color:var(--muted); transition:all 0.15s; }
+  .btn-sm:hover { border-color:var(--violet); color:var(--text); }
+  .btn-sm.del:hover { border-color:var(--danger); color:var(--danger); }
+
+  .toast { position:fixed; bottom:24px; right:24px; background:var(--mid); border:1px solid var(--violet); border-radius:12px; padding:14px 20px; font-size:14px; display:none; align-items:center; gap:10px; z-index:300; }
+  .toast.show { display:flex; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-page">
+  <div class="card">
+    <div class="role-badge">🧍 Patient Portal</div>
+    <div class="login-title">Patient Sign In</div>
+    <div class="login-sub">Book appointments & manage your health records</div>
+    <label>Username</label>
+    <input type="text" id="lu" placeholder="alice" value="alice">
+    <label>Password</label>
+    <input type="password" id="lp" placeholder="••••••••" value="patient123">
+    <button class="btn-main" onclick="login()">Sign In</button>
+    <div class="login-foot">Smart Clinic v2.4 · Patient Access</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dash-page">
+  <div class="topbar">
+    <div class="brand"><div class="brand-icon">🏥</div> Smart Clinic</div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <span class="role-chip">🧍 Patient</span>
+      <button class="btn-out" onclick="logout()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sb-sec">Overview</div>
+      <div class="sb-item active">🏠 Dashboard</div>
+      <div class="sb-sec">My Health</div>
+      <div class="sb-item">📅 My Appointments</div>
+      <div class="sb-item">💊 Prescriptions</div>
+      <div class="sb-item">📋 Medical Records</div>
+      <div class="sb-sec">Find Care</div>
+      <div class="sb-item">🔍 Find a Doctor</div>
+    </aside>
+
+    <div class="content">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Welcome, Alice Johnson</div>
+          <div class="page-sub">Find doctors and manage your appointments</div>
+        </div>
+      </div>
+
+      <!-- Doctor Search -->
+      <div class="search-section">
+        <div class="search-title">🔍 Find a Doctor by Name or Specialty</div>
+        <div class="search-row">
+          <input type="search" class="search-input" id="doc-search" placeholder="Search by doctor name…" oninput="filterDocs(this.value)">
+          <select class="spec-select" id="spec-filter" onchange="filterDocs(document.getElementById('doc-search').value)">
+            <option value="">All Specialties</option>
+            <option>Cardiology</option>
+            <option>Neurology</option>
+            <option>Orthopedics</option>
+            <option>Dermatology</option>
+            <option>Pediatrics</option>
+            <option>Psychiatry</option>
+            <option>Ophthalmology</option>
+            <option>General Practice</option>
+            <option>Endocrinology</option>
+          </select>
+          <button class="btn-search" onclick="filterDocs(document.getElementById('doc-search').value)">Search</button>
+        </div>
+
+        <div class="doc-grid" id="doc-grid">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <!-- My Appointments -->
+      <div class="tcard">
+        <div class="tbar">
+          <div class="ttitle">📅 My Appointments</div>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Doctor</th><th>Specialty</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="appt-tbody">
+            <tr><td>Dr. John Smith</td><td>Cardiology</td><td>2024-03-01</td><td>09:00 AM</td><td><span class="badge badge-green">Completed</span></td><td><button class="btn-sm">View</button></td></tr>
+            <tr><td>Dr. Maria Garcia</td><td>Pediatrics</td><td>2024-03-08</td><td>08:00 AM</td><td><span class="badge badge-violet">Scheduled</span></td><td><button class="btn-sm">View</button><button class="btn-sm del" onclick="cancel(this)">Cancel</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✅ Appointment booked!</div>
+
+<script>
+  const doctors = [
+    { name:'Dr. John Smith',   spec:'Cardiology',      exp:'15 yrs', emoji:'🫀' },
+    { name:'Dr. Sarah Jones',  spec:'Neurology',       exp:'12 yrs', emoji:'🧠' },
+    { name:'Dr. Raj Patel',    spec:'Orthopedics',     exp:'10 yrs', emoji:'🦴' },
+    { name:'Dr. Li Chen',      spec:'Dermatology',     exp:'8 yrs',  emoji:'🩺' },
+    { name:'Dr. Maria Garcia', spec:'Pediatrics',      exp:'20 yrs', emoji:'👶' },
+    { name:'Dr. Robert Wilson',spec:'Psychiatry',      exp:'18 yrs', emoji:'🧘' },
+    { name:'Dr. Amy Lee',      spec:'Cardiology',      exp:'7 yrs',  emoji:'🫀' },
+    { name:'Dr. Anil Kumar',   spec:'Ophthalmology',   exp:'11 yrs', emoji:'👁' },
+    { name:'Dr. James Brown',  spec:'General Practice',exp:'5 yrs',  emoji:'🏥' },
+    { name:'Dr. Emily Taylor', spec:'Endocrinology',   exp:'9 yrs',  emoji:'⚗️' },
+  ];
+
+  function renderDocs(list) {
+    const grid = document.getElementById('doc-grid');
+    if (!list.length) { grid.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0">No doctors found.</div>'; return; }
+    grid.innerHTML = list.map(d => `
+      <div class="doc-card">
+        <div class="doc-avatar">${d.emoji}</div>
+        <div class="doc-name">${d.name}</div>
+        <div class="doc-spec">${d.spec}</div>
+        <div class="doc-exp">⏱ ${d.exp} experience</div>
+        <button class="btn-book" onclick="book('${d.name}','${d.spec}')">Book Appointment</button>
+      </div>`).join('');
+  }
+
+  function filterDocs(q) {
+    const spec = document.getElementById('spec-filter').value;
+    const filtered = doctors.filter(d => {
+      const matchName = d.name.toLowerCase().includes(q.toLowerCase());
+      const matchSpec = !spec || d.spec === spec;
+      return matchName && matchSpec;
+    });
+    renderDocs(filtered);
+  }
+
+  function book(name, spec) {
+    const tbody = document.getElementById('appt-tbody');
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${name}</td><td>${spec}</td><td>2024-03-15</td><td>10:00 AM</td><td><span class="badge badge-violet">Scheduled</span></td><td><button class="btn-sm">View</button><button class="btn-sm del" onclick="cancel(this)">Cancel</button></td>`;
+    tbody.appendChild(row);
+    showToast('✅ Appointment booked with ' + name + '!');
+  }
+
+  function cancel(btn) {
+    if (confirm('Cancel this appointment?')) { btn.closest('tr').remove(); showToast('❌ Appointment cancelled.'); }
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  function login() {
+    const u = document.getElementById('lu').value;
+    const p = document.getElementById('lp').value;
+    if (u && p === 'patient123') {
+      document.getElementById('login-page').style.display = 'none';
+      document.getElementById('dash-page').style.display = 'block';
+      renderDocs(doctors);
+    } else { alert('Use any username / patient123'); }
+  }
+
+  function logout() {
+    document.getElementById('login-page').style.display = 'flex';
+    document.getElementById('dash-page').style.display = 'none';
+  }
+
+  document.addEventListener('keydown', e => { if(e.key==='Enter') login(); });
+</script>
+</body>
+</html>

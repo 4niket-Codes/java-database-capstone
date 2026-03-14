@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Portal – Smart Clinic</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --teal: #0d9488;
+    --teal-dark: #0f766e;
+    --teal-light: #ccfbf1;
+    --slate: #0f172a;
+    --slate-mid: #1e293b;
+    --slate-light: #334155;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --white: #ffffff;
+    --danger: #ef4444;
+    --warn: #f59e0b;
+    --success: #22c55e;
+    --border: #1e293b;
+    --card: #1e293b;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--slate);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── LOGIN PAGE ── */
+  #login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at 60% 40%, #134e4a 0%, #0f172a 70%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #login-page::before {
+    content:'';
+    position:absolute;
+    inset:0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 60px,
+      rgba(13,148,136,0.04) 60px,
+      rgba(13,148,136,0.04) 61px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 60px,
+      rgba(13,148,136,0.04) 60px,
+      rgba(13,148,136,0.04) 61px
+    );
+  }
+
+  .login-card {
+    background: rgba(30,41,59,0.95);
+    border: 1px solid rgba(13,148,136,0.3);
+    border-radius: 20px;
+    padding: 48px 44px;
+    width: 420px;
+    position: relative;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(13,148,136,0.1);
+    animation: fadeUp 0.6s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(20px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  .login-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(13,148,136,0.15);
+    border: 1px solid rgba(13,148,136,0.3);
+    border-radius: 100px;
+    padding: 4px 12px 4px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #5eead4;
+    margin-bottom: 24px;
+  }
+
+  .login-badge span.dot {
+    width:8px; height:8px;
+    background: #5eead4;
+    border-radius: 50%;
+    animation: pulse 2s ease infinite;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .login-title {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 6px;
+    color: var(--white);
+  }
+
+  .login-subtitle {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 36px;
+  }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  input[type="text"], input[type="password"] {
+    width: 100%;
+    background: rgba(15,23,42,0.8);
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    margin-bottom: 20px;
+  }
+
+  input:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(13,148,136,0.2);
+  }
+
+  .btn-login {
+    width: 100%;
+    background: var(--teal);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    margin-top: 4px;
+  }
+
+  .btn-login:hover { background: var(--teal-dark); transform: translateY(-1px); }
+  .btn-login:active { transform: translateY(0); }
+
+  .login-footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* ── DASHBOARD ── */
+  #dashboard-page { display: none; }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 32px;
+    background: var(--slate-mid);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .brand-icon {
+    width: 36px; height: 36px;
+    background: var(--teal);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .admin-chip {
+    background: rgba(13,148,136,0.15);
+    border: 1px solid rgba(13,148,136,0.3);
+    border-radius: 100px;
+    padding: 5px 12px;
+    font-size: 13px;
+    color: #5eead4;
+    font-weight: 500;
+  }
+
+  .btn-logout {
+    background: transparent;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+  .main-layout {
+    display: flex;
+    min-height: calc(100vh - 68px);
+  }
+
+  .sidebar {
+    width: 220px;
+    background: var(--slate-mid);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    flex-shrink: 0;
+  }
+
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 0 20px;
+    margin-bottom: 8px;
+    margin-top: 16px;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-muted);
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+
+  .sidebar-item:hover, .sidebar-item.active {
+    color: var(--text);
+    background: rgba(13,148,136,0.08);
+    border-left-color: var(--teal);
+  }
+
+  .sidebar-item .icon { font-size: 16px; }
+
+  .content {
+    flex: 1;
+    padding: 32px;
+    overflow-y: auto;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+
+  .page-title { font-size: 22px; font-weight: 700; }
+  .page-sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+  .btn-primary {
+    background: var(--teal);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary:hover { background: var(--teal-dark); }
+
+  /* Stats row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+
+  .stat-label { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-bottom: 8px; }
+  .stat-value { font-size: 32px; font-weight: 700; }
+  .stat-value.teal { color: #5eead4; }
+  .stat-value.blue { color: #60a5fa; }
+  .stat-value.amber { color: #fbbf24; }
+  .stat-value.rose  { color: #fb7185; }
+
+  /* Table */
+  .table-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .table-title { font-size: 15px; font-weight: 600; }
+
+  .search-box {
+    background: rgba(15,23,42,0.6);
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    outline: none;
+    width: 220px;
+    transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--teal); }
+  .search-box::placeholder { color: var(--text-muted); }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  th {
+    padding: 12px 20px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: rgba(15,23,42,0.4);
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 14px 20px;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(30,41,59,0.8);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(13,148,136,0.04); }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-teal  { background: rgba(13,148,136,0.15); color: #5eead4; }
+  .badge-blue  { background: rgba(96,165,250,0.15); color: #93c5fd; }
+  .badge-amber { background: rgba(245,158,11,0.15); color: #fcd34d; }
+  .badge-rose  { background: rgba(239,68,68,0.15);  color: #fca5a5; }
+
+  .btn-sm {
+    background: transparent;
+    border: 1px solid #334155;
+    border-radius: 7px;
+    padding: 5px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-muted);
+    margin-right: 4px;
+  }
+  .btn-sm:hover { border-color: var(--teal); color: var(--text); }
+  .btn-sm.danger:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* Add Doctor Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--slate-mid);
+    border: 1px solid rgba(13,148,136,0.3);
+    border-radius: 16px;
+    padding: 32px;
+    width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: fadeUp 0.3s ease;
+  }
+
+  .modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 20px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 6px;
+  }
+  .modal-close:hover { background: #334155; color: var(--text); }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .form-group { margin-bottom: 16px; }
+  .form-group label { margin-bottom: 6px; }
+  .form-group input, .form-group select {
+    width: 100%;
+    background: rgba(15,23,42,0.8);
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 0;
+  }
+  .form-group select option { background: var(--slate-mid); }
+  .form-group input:focus, .form-group select:focus { border-color: var(--teal); }
+
+  .modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 24px;
+  }
+
+  .btn-cancel {
+    background: transparent;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-cancel:hover { border-color: #475569; color: var(--text); }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--slate-mid);
+    border: 1px solid var(--teal);
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-size: 14px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    z-index: 300;
+    animation: fadeUp 0.3s ease;
+  }
+  .toast.show { display: flex; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ LOGIN PAGE ═══════════════════ -->
+<div id="login-page">
+  <div class="login-card">
+    <div class="login-badge">
+      <span class="dot"></span>
+      Admin Portal
+    </div>
+    <div class="login-title">Smart Clinic<br>Management</div>
+    <div class="login-subtitle">Sign in to your administrator dashboard</div>
+
+    <label>Username</label>
+    <input type="text" id="login-user" placeholder="admin" value="admin">
+
+    <label>Password</label>
+    <input type="password" id="login-pass" placeholder="••••••••" value="admin123">
+
+    <button class="btn-login" onclick="doLogin()">Sign In</button>
+
+    <div class="login-footer">Smart Clinic v2.4 · IBM Capstone Project</div>
+  </div>
+</div>
+
+<!-- ═══════════════════ DASHBOARD ═══════════════════ -->
+<div id="dashboard-page">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-icon">🏥</div>
+      Smart Clinic
+    </div>
+    <div class="topbar-right">
+      <span class="admin-chip">⚙ Administrator</span>
+      <button class="btn-logout" onclick="doLogout()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="main-layout">
+    <aside class="sidebar">
+      <div class="sidebar-label">Overview</div>
+      <div class="sidebar-item active"><span class="icon">📊</span> Dashboard</div>
+      <div class="sidebar-label">Management</div>
+      <div class="sidebar-item" onclick="showDoctors()"><span class="icon">🧑‍⚕️</span> Doctors</div>
+      <div class="sidebar-item"><span class="icon">🧍</span> Patients</div>
+      <div class="sidebar-item"><span class="icon">📅</span> Appointments</div>
+      <div class="sidebar-label">Analytics</div>
+      <div class="sidebar-item"><span class="icon">📈</span> Reports</div>
+      <div class="sidebar-item"><span class="icon">💊</span> Prescriptions</div>
+    </aside>
+
+    <div class="content">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Admin Dashboard</div>
+          <div class="page-sub">Welcome back, System Administrator</div>
+        </div>
+        <button class="btn-primary" onclick="openAddDoctor()">＋ Add Doctor</button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Doctors</div>
+          <div class="stat-value teal">10</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Patients</div>
+          <div class="stat-value blue">10</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Appointments Today</div>
+          <div class="stat-value amber">5</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pending</div>
+          <div class="stat-value rose">3</div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div class="table-title">🧑‍⚕️ Doctor Registry</div>
+          <input class="search-box" placeholder="Search doctors…" oninput="filterDoctors(this.value)">
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Specialization</th>
+              <th>Experience</th>
+              <th>Phone</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="doctors-tbody">
+            <tr><td>Dr. John Smith</td><td>Cardiology</td><td>15 yrs</td><td>555-1001</td><td><span class="badge badge-teal">Active</span></td><td><button class="btn-sm">Edit</button><button class="btn-sm danger" onclick="removeDoc(this)">Remove</button></td></tr>
+            <tr><td>Dr. Sarah Jones</td><td>Neurology</td><td>12 yrs</td><td>555-1002</td><td><span class="badge badge-teal">Active</span></td><td><button class="btn-sm">Edit</button><button class="btn-sm danger" onclick="removeDoc(this)">Remove</button></td></tr>
+            <tr><td>Dr. Raj Patel</td><td>Orthopedics</td><td>10 yrs</td><td>555-1003</td><td><span class="badge badge-teal">Active</span></td><td><button class="btn-sm">Edit</button><button class="btn-sm danger" onclick="removeDoc(this)">Remove</button></td></tr>
+            <tr><td>Dr. Li Chen</td><td>Dermatology</td><td>8 yrs</td><td>555-1004</td><td><span class="badge badge-teal">Active</span></td><td><button class="btn-sm">Edit</button><button class="btn-sm danger" onclick="removeDoc(this)">Remove</button></td></tr>
+            <tr><td>Dr. Maria Garcia</td><td>Pediatrics</td><td>20 yrs</td><td>555-1005</td><td><span class="badge badge-amber">On Leave</span></td><td><button class="btn-sm">Edit</button><button class="btn-sm danger" onclick="removeDoc(this)">Remove</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD DOCTOR MODAL -->
+<div class="modal-overlay" id="add-doctor-modal">
+  <div class="modal">
+    <div class="modal-title">
+      Add New Doctor
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="doc-name" placeholder="Dr. Jane Doe">
+      </div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="doc-username" placeholder="dr_jane">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="text" id="doc-email" placeholder="jane@clinic.com">
+      </div>
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="text" id="doc-phone" placeholder="555-XXXX">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Specialization</label>
+        <select id="doc-spec">
+          <option>Cardiology</option>
+          <option>Neurology</option>
+          <option>Orthopedics</option>
+          <option>Dermatology</option>
+          <option>Pediatrics</option>
+          <option>Psychiatry</option>
+          <option>Ophthalmology</option>
+          <option>General Practice</option>
+          <option>Endocrinology</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Years Experience</label>
+        <input type="text" id="doc-exp" placeholder="5">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>License Number</label>
+      <input type="text" id="doc-lic" placeholder="LIC-XXX">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="doc-pass" placeholder="••••••••">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="addDoctor()">Add Doctor</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ Doctor added successfully!</div>
+
+<script>
+  function doLogin() {
+    const u = document.getElementById('login-user').value;
+    const p = document.getElementById('login-pass').value;
+    if (u === 'admin' && p === 'admin123') {
+      document.getElementById('login-page').style.display = 'none';
+      document.getElementById('dashboard-page').style.display = 'block';
+    } else {
+      alert('Invalid credentials. Use admin / admin123');
+    }
+  }
+
+  function doLogout() {
+    document.getElementById('login-page').style.display = 'flex';
+    document.getElementById('dashboard-page').style.display = 'none';
+  }
+
+  function openAddDoctor() {
+    document.getElementById('add-doctor-modal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('add-doctor-modal').classList.remove('open');
+  }
+
+  function addDoctor() {
+    const name = document.getElementById('doc-name').value || 'Dr. New Doctor';
+    const spec = document.getElementById('doc-spec').value;
+    const exp  = document.getElementById('doc-exp').value  || '0';
+    const phone= document.getElementById('doc-phone').value|| '555-0000';
+    const tbody = document.getElementById('doctors-tbody');
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${name}</td><td>${spec}</td><td>${exp} yrs</td><td>${phone}</td><td><span class="badge badge-teal">Active</span></td><td><button class="btn-sm">Edit</button><button class="btn-sm danger" onclick="removeDoc(this)">Remove</button></td>`;
+    tbody.appendChild(row);
+    closeModal();
+    showToast('✅ Doctor added successfully!');
+  }
+
+  function removeDoc(btn) {
+    if (confirm('Remove this doctor?')) {
+      btn.closest('tr').remove();
+      showToast('🗑 Doctor removed.');
+    }
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  function filterDoctors(q) {
+    q = q.toLowerCase();
+    document.querySelectorAll('#doctors-tbody tr').forEach(r => {
+      r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const lp = document.getElementById('login-page');
+      if (lp.style.display !== 'none') doLogin();
+    }
+    if (e.key === 'Escape') closeModal();
+  });
+</script>
+</body>
+</html>

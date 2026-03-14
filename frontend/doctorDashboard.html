@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctor Portal – Smart Clinic</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --blue: #3b82f6;
+    --blue-dark: #2563eb;
+    --blue-light: #dbeafe;
+    --slate: #0f172a;
+    --slate-mid: #1e293b;
+    --border: #1e293b;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --success: #22c55e;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--slate); color: var(--text); min-height: 100vh; }
+
+  /* LOGIN */
+  #login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at 40% 50%, #1e3a5f 0%, #0f172a 65%);
+  }
+
+  .login-card {
+    background: rgba(30,41,59,0.95);
+    border: 1px solid rgba(59,130,246,0.25);
+    border-radius: 20px;
+    padding: 48px 44px;
+    width: 420px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+    animation: up 0.5s ease both;
+  }
+  @keyframes up { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+
+  .role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(59,130,246,0.12);
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 100px;
+    padding: 4px 12px 4px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #93c5fd;
+    margin-bottom: 24px;
+  }
+
+  .login-title { font-size: 28px; font-weight: 700; margin-bottom: 6px; color: #fff; }
+  .login-sub   { font-size: 14px; color: var(--muted); margin-bottom: 36px; }
+
+  label { display:block; font-size:11px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color:var(--muted); margin-bottom:7px; }
+
+  input[type="text"], input[type="password"] {
+    width:100%; background:rgba(15,23,42,0.8); border:1px solid #334155;
+    border-radius:10px; padding:12px 16px; font-size:15px;
+    font-family:'Plus Jakarta Sans',sans-serif; color:var(--text);
+    outline:none; transition:border-color 0.2s; margin-bottom:18px;
+  }
+  input:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(59,130,246,0.2); }
+
+  .btn-login {
+    width:100%; background:var(--blue); color:#fff; border:none;
+    border-radius:10px; padding:14px; font-size:15px; font-weight:600;
+    font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:background 0.2s;
+  }
+  .btn-login:hover { background:var(--blue-dark); }
+  .login-foot { text-align:center; margin-top:18px; font-size:12px; color:var(--muted); }
+
+  /* DASHBOARD */
+  #dash-page { display:none; }
+
+  .topbar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 28px; background:var(--slate-mid); border-bottom:1px solid var(--border);
+    position:sticky; top:0; z-index:50;
+  }
+  .brand { display:flex; align-items:center; gap:10px; font-size:17px; font-weight:700; }
+  .brand-icon { width:34px; height:34px; background:var(--blue); border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .role-chip  { background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.3); border-radius:100px; padding:4px 12px; font-size:12px; color:#93c5fd; font-weight:600; }
+  .btn-out { background:transparent; border:1px solid #334155; border-radius:8px; padding:5px 13px; font-size:13px; color:var(--muted); cursor:pointer; font-family:inherit; }
+  .btn-out:hover { border-color:var(--danger); color:var(--danger); }
+
+  .layout { display:flex; min-height:calc(100vh - 62px); }
+
+  .sidebar { width:210px; background:var(--slate-mid); border-right:1px solid var(--border); padding:20px 0; flex-shrink:0; }
+  .sb-sec  { font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); padding:0 18px; margin:14px 0 6px; }
+  .sb-item { display:flex; align-items:center; gap:9px; padding:9px 18px; font-size:13px; color:var(--muted); cursor:pointer; border-left:3px solid transparent; transition:all 0.15s; }
+  .sb-item:hover, .sb-item.active { color:var(--text); background:rgba(59,130,246,0.08); border-left-color:var(--blue); }
+
+  .content { flex:1; padding:28px; }
+  .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
+  .page-title { font-size:20px; font-weight:700; }
+  .page-sub   { font-size:13px; color:var(--muted); margin-top:2px; }
+
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:24px; }
+  .scard { background:var(--slate-mid); border:1px solid var(--border); border-radius:12px; padding:18px; }
+  .scard-label { font-size:11px; color:var(--muted); font-weight:600; margin-bottom:6px; }
+  .scard-val { font-size:28px; font-weight:700; }
+  .blue { color:#60a5fa; } .green { color:#4ade80; } .amber { color:#fbbf24; }
+
+  .tcard { background:var(--slate-mid); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .tbar  { display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-bottom:1px solid var(--border); }
+  .ttitle { font-size:14px; font-weight:600; }
+
+  .date-pick {
+    background:rgba(15,23,42,0.6); border:1px solid #334155; border-radius:8px;
+    padding:6px 12px; font-size:13px; font-family:inherit; color:var(--text);
+    outline:none;
+  }
+  .date-pick:focus { border-color:var(--blue); }
+
+  table { width:100%; border-collapse:collapse; }
+  th { padding:11px 18px; text-align:left; font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); background:rgba(15,23,42,0.4); border-bottom:1px solid var(--border); }
+  td { padding:13px 18px; font-size:13px; border-bottom:1px solid rgba(30,41,59,0.8); }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:rgba(59,130,246,0.04); }
+
+  .badge { display:inline-block; padding:3px 9px; border-radius:100px; font-size:11px; font-weight:600; }
+  .badge-green  { background:rgba(34,197,94,0.12); color:#4ade80; }
+  .badge-blue   { background:rgba(59,130,246,0.12); color:#93c5fd; }
+  .badge-amber  { background:rgba(245,158,11,0.12); color:#fcd34d; }
+  .badge-red    { background:rgba(239,68,68,0.12); color:#fca5a5; }
+
+  .btn-sm { background:transparent; border:1px solid #334155; border-radius:7px; padding:4px 11px; font-size:12px; cursor:pointer; font-family:inherit; color:var(--muted); transition:all 0.15s; }
+  .btn-sm:hover { border-color:var(--blue); color:var(--text); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-page">
+  <div class="login-card">
+    <div class="role-badge">🩺 Doctor Portal</div>
+    <div class="login-title">Doctor Sign In</div>
+    <div class="login-sub">Access your appointments and patient records</div>
+
+    <label>Username</label>
+    <input type="text" id="lu" placeholder="dr_smith" value="dr_smith">
+    <label>Password</label>
+    <input type="password" id="lp" placeholder="••••••••" value="doctor123">
+    <button class="btn-login" onclick="login()">Sign In</button>
+    <div class="login-foot">Smart Clinic v2.4 · Doctor Access</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dash-page">
+  <div class="topbar">
+    <div class="brand"><div class="brand-icon">🏥</div> Smart Clinic</div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <span class="role-chip">🩺 Doctor</span>
+      <button class="btn-out" onclick="logout()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sb-sec">Overview</div>
+      <div class="sb-item active">📊 Dashboard</div>
+      <div class="sb-sec">My Clinic</div>
+      <div class="sb-item">📅 Appointments</div>
+      <div class="sb-item">🧍 My Patients</div>
+      <div class="sb-item">💊 Prescriptions</div>
+      <div class="sb-sec">Reports</div>
+      <div class="sb-item">📋 Daily Report</div>
+    </aside>
+
+    <div class="content">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Welcome, Dr. John Smith</div>
+          <div class="page-sub">Cardiology · Today: Saturday, March 14, 2026</div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="scard">
+          <div class="scard-label">Today's Appointments</div>
+          <div class="scard-val blue">5</div>
+        </div>
+        <div class="scard">
+          <div class="scard-label">Total Patients</div>
+          <div class="scard-val green">23</div>
+        </div>
+        <div class="scard">
+          <div class="scard-label">Pending</div>
+          <div class="scard-val amber">2</div>
+        </div>
+      </div>
+
+      <div class="tcard">
+        <div class="tbar">
+          <div class="ttitle">📅 Patient Appointment List</div>
+          <input type="date" class="date-pick" value="2024-03-14">
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Patient Name</th>
+              <th>Time</th>
+              <th>Reason</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Alice Johnson</td><td>09:00 AM</td><td>Chest pain evaluation</td><td><span class="badge badge-green">Completed</span></td><td><button class="btn-sm">View</button></td></tr>
+            <tr><td>2</td><td>Bob Martinez</td><td>10:00 AM</td><td>Routine cardiac checkup</td><td><span class="badge badge-green">Completed</span></td><td><button class="btn-sm">View</button></td></tr>
+            <tr><td>3</td><td>Ivan Petrov</td><td>11:00 AM</td><td>Heart palpitations</td><td><span class="badge badge-blue">Scheduled</span></td><td><button class="btn-sm">View</button></td></tr>
+            <tr><td>4</td><td>Charlie Singh</td><td>02:00 PM</td><td>Blood pressure check</td><td><span class="badge badge-amber">Pending</span></td><td><button class="btn-sm">View</button></td></tr>
+            <tr><td>5</td><td>Julia Roberts</td><td>03:30 PM</td><td>Follow-up ECG</td><td><span class="badge badge-amber">Pending</span></td><td><button class="btn-sm">View</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function login() {
+    const u = document.getElementById('lu').value;
+    const p = document.getElementById('lp').value;
+    if (u.startsWith('dr_') && p === 'doctor123') {
+      document.getElementById('login-page').style.display = 'none';
+      document.getElementById('dash-page').style.display = 'block';
+    } else {
+      alert('Use dr_smith / doctor123');
+    }
+  }
+  function logout() {
+    document.getElementById('login-page').style.display = 'flex';
+    document.getElementById('dash-page').style.display = 'none';
+  }
+  document.addEventListener('keydown', e => { if(e.key==='Enter') login(); });
+</script>
+</body>
+</html>
